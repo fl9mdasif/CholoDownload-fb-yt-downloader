@@ -1,7 +1,12 @@
+
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { FollowerPointerCard } from "@/components/ui/following-pointer";
+import { BackgroundLinesDemo } from "@/components/BackgroundLines";
+import Providers from "@/lib/providers/Provider";
+
+
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -25,16 +30,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-         <FollowerPointerCard>
-        {children}
-         </FollowerPointerCard>
-         
-
-      </body>
-    </html>
+    <Providers>
+      <html lang="en">
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        >
+          <BackgroundLinesDemo />
+          <FollowerPointerCard>
+            {children}
+          </FollowerPointerCard>
+        </body>
+      </html>
+    </Providers>
   );
 }

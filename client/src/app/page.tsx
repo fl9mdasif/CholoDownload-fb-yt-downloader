@@ -1,11 +1,11 @@
-import { BackgroundLinesDemo } from "@/components/BackgroundLines";
-import { InputDemo } from "@/components/input";
+
+import { FacebookInput } from "@/components/f-Input";
+
 
 export default function Home() {
   return (
-    <div className=""> 
-           <BackgroundLinesDemo/>
-           <InputDemo/>
+    <div className="mt-10">
+      <FacebookInput />
     </div>
   );
 }
