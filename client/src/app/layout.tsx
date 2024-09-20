@@ -6,8 +6,6 @@ import { FollowerPointerCard } from "@/components/ui/following-pointer";
 import { BackgroundLinesDemo } from "@/components/BackgroundLines";
 import Providers from "@/lib/providers/Provider";
 
-
-
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
