@@ -8,14 +8,14 @@ import { PlaceholdersAndVanishInput } from "../components/ui/placeholders-and-va
 import { useDownloadFacebookMutation } from "@/redux/api/downloadAPi";
 import { modifyPayload } from "@/utils/modifyPayload";
 import { useState } from "react";
-import { p } from "framer-motion/client";
+// import { p } from "framer-motion/client";
 import Image from "next/image";
 
 // Define a type for the response
-interface FacebookDownloadLinks {
-  "Download Low Quality": string;
-  "Download High Quality": string;
-}
+// interface FacebookDownloadLinks {
+//   "Download Low Quality": string;
+//   "Download High Quality": string;
+// }
 
 export function FacebookInput() {
   const placeholder1 = ["🔵 Paste Your Facebook video link"];
@@ -23,7 +23,7 @@ export function FacebookInput() {
   const [facebookUrl, setFacebookUrl] = useState(""); // State to hold the input value
   const [fbResponse, setFbResponse] = useState(); // State to hold the input value
 
-  const [facebookLinks, setFacebookLinks] = useState<FacebookDownloadLinks | null>(null); // State to hold the URLs
+  // const [facebookLinks, setFacebookLinks] = useState<FacebookDownloadLinks | null>(null); // State to hold the URLs
   const [loading, setLoading] = useState(false); // State to handle loading status
   const [downloadFacebook] = useDownloadFacebookMutation();
 
@@ -105,12 +105,12 @@ export function FacebookInput() {
         // Display the download URLs as buttons
         <div>
           {fbResponse ? (
-            <>
+            <div>
               <div className="flex flex-col justify-center items-center ">
 
                 <p className="w-96 mb-8 p-6">{fbResponse.title}</p>
                 <Image
-                  src={fbResponse.thumbnail}
+                  src={fbResponse?.thumbnail}
                   height={200}
                   width={350}
                   alt="Video Thumbnail"
@@ -137,7 +137,7 @@ export function FacebookInput() {
                   </a>
                 )}
               </div>
-            </>
+            </div>
           ) : (
             <p>No URLs available.</p>
           )}
