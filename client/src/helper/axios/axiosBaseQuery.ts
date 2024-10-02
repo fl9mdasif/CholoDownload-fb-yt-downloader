@@ -30,7 +30,7 @@ export const axiosBaseQuery =
         },
       });
       
-      console.log("Backend response:", result); // Now this will log the actual data
+      // console.log("Backend response:", result); // Now this will log the actual data
       return { data: result }; // Return result directly since it's the actual response data
       
     } catch (axiosError) {

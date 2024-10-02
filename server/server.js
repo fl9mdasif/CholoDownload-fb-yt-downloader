@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import fetch from 'node-fetch';
+import ytdl from 'ytdl-core'
 
 const app = express();
 const port = 5000;
@@ -20,7 +21,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Route to download Facebook videos using RapidAPI
 app.post('/download/facebook', async (req, res) => {
     const { url } = req.body;
-    console.log(`Received request to download Facebook video: ${url}`);
+    // console.log(`Received request to download Facebook video: ${url}`);
 
     if (!url) {
         return res.status(400).send('URL is required');
@@ -44,10 +45,7 @@ app.post('/download/facebook', async (req, res) => {
         }
 
         const result = await response.json();
-        console.log('API response:', result);
-
-        const videoDownloadUrl = result.links || result.videoUrl;
-
+        
         if (result.success) {
             res.json({ data: result });
         } else {
@@ -59,66 +57,50 @@ app.post('/download/facebook', async (req, res) => {
     }
 });
 
+ 
+
 app.post('/download/youtube', async (req, res) => {
     const { url } = req.body;
-
-    console.log(`Received request to download YouTube video for url term: ${url}`);
-
+  
+    console.log(`Received request to download YouTube video for url: ${url}`);
+  
     if (!url) {
-        return res.status(400).send('URL is required');
+      return res.status(400).send('URL is required');
     }
-
-    // Extract video ID if it's a full YouTube URL
-    let videoID = '';
-    if (url.includes('youtu.be/')) {
-        videoID = url.split('youtu.be/')[1];
-    } else if (url.includes('youtube.com/watch?v=')) {
-        videoID = new URL(url).searchParams.get('v');
-    } else {
-        // Assuming it's a raw video ID, like 'eBz5JwWMg3Q'
-        videoID = url;
-    }
-
-    // Remove any additional parameters (like ?si=...) from the video ID
-    videoID = videoID.split('?')[0];
-
-    const rapidApiUrl = `https://youtube-audio-and-video-url.p.rapidapi.com/api/ytd/info?search=${encodeURIComponent(videoID)}`;
-    const options = {
-        method: 'GET',
-        headers: {
-            'x-rapidapi-key': 'c59fa6da1fmsh36998f6472f1db1p1f5dddjsn12731076672f', // Replace with your actual RapidAPI key
-            'x-rapidapi-host': 'youtube-audio-and-video-url.p.rapidapi.com'
-        }
-    };
-
-    console.log('Requesting URL:', rapidApiUrl);
-    console.log('With headers:', options.headers);
-
+  
     try {
-        const response = await fetch(rapidApiUrl, options);
-
-        if (!response.ok) {
-            console.error(`API response error: ${response.status} ${response.statusText}`);
-            return res.status(response.status).send(`Error fetching YouTube video download link: ${response.statusText}`);
-        }
-
-        const result = await response.json();
-        console.log('API response:', result);
-
-        if (result) {
-            res.json({ data: result });
-        } else {
-            res.status(400).send('Unable to retrieve YouTube video URL');
-        }
+      // Get video information using ytdl-core
+      const info = await ytdl.getInfo(url);
+  
+      // Extract the video formats and filter for video and audio streams
+      const formats = ytdl.filterFormats(info.formats, 'videoandaudio');
+      console.log(formats)
+      
+      const videoFormats = formats
+        .filter(format => format.container === 'mp4') // Filter mp4 formats (optional)
+        .map(format => ({
+          quality: format.qualityLabel || 'unknown', // Video quality label (e.g., 360p, 720p)
+          itag: format.itag,                         // Unique identifier for the format
+          mimeType: format.mimeType,                 // Type of video/audio (e.g., video/mp4)
+          url: format.url                            // The direct download URL
+        }));
+         // Set headers for response
+         res.setHeader('Content-Disposition', `attachment; filename="${info.title}.mp4"`);
+         res.setHeader('Content-Type', 'video/mp4');
+  
+      // Send the response to the client with video details and formats
+      res.json({
+        title: info.videoDetails.title,
+        thumbnail: info.videoDetails.thumbnails[0].url,
+        formats: videoFormats
+      });
     } catch (error) {
-        console.error('Error downloading YouTube video:', error);
-        res.status(500).send('Failed to download YouTube video');
+      console.error('Error fetching YouTube video:', error);
+      res.status(500).send('Failed to download YouTube video');
     }
-});
+  });
 
 
-
-// Not Found Middleware
 app.use((req, res, next) => {
     res.status(404).json({
       success: false,

@@ -8,20 +8,16 @@ import { PlaceholdersAndVanishInput } from "../components/ui/placeholders-and-va
 import { useDownloadFacebookMutation } from "@/redux/api/downloadAPi";
 import { modifyPayload } from "@/utils/modifyPayload";
 import { useState } from "react";
-// import { p } from "framer-motion/client";
-import Image from "next/image";
 
-// Define a type for the response
-// interface FacebookDownloadLinks {
-//   "Download Low Quality": string;
-//   "Download High Quality": string;
-// }
+import Image from "next/image";
+import { FacebookDownloadResponse } from "@/types";
+
 
 export function FacebookInput() {
   const placeholder1 = ["🔵 Paste Your Facebook video link"];
 
   const [facebookUrl, setFacebookUrl] = useState(""); // State to hold the input value
-  const [fbResponse, setFbResponse] = useState(); // State to hold the input value
+  const [fbResponse, setFbResponse] = useState<FacebookDownloadResponse | null>(null) // State to hold the input value
 
   // const [facebookLinks, setFacebookLinks] = useState<FacebookDownloadLinks | null>(null); // State to hold the URLs
   const [loading, setLoading] = useState(false); // State to handle loading status
@@ -54,17 +50,13 @@ export function FacebookInput() {
     try {
       // Send the request to download the Facebook video
       const res: any = await downloadFacebook(data).unwrap();
-
-
-      // Set the response data
       setFbResponse(res.data);
-      // setFacebookLinks(res.downloadUrl);
 
       console.log('client response', fbResponse)
     } catch (err: any) {
       console.error("Error downloading Facebook video:", err.message);
     } finally {
-      setLoading(false); // Set loading to false when request completes
+      setLoading(false);
     }
   };
 
@@ -108,7 +100,7 @@ export function FacebookInput() {
             <div>
               <div className="flex flex-col justify-center items-center ">
 
-                <p className="w-96 mb-8 p-6">{fbResponse.title}</p>
+                <p className="w-96 text-lg font-bold  font-4 mb-4 mt-4 ">{fbResponse.title}</p>
                 <Image
                   src={fbResponse?.thumbnail}
                   height={200}
@@ -122,7 +114,7 @@ export function FacebookInput() {
                   <a
                     href={fbResponse?.links["Download High Quality"]}
                     download
-                    className="bg-blue-500 text-white py-2 px-3 rounded m-2"
+                    className="bg-blue-500 text-lg font-bold text-white py-2 px-3 rounded m-2"
                   >
                     Download High Quality
                   </a>
@@ -131,7 +123,7 @@ export function FacebookInput() {
                   <a
                     href={fbResponse?.links["Download Low Quality"]}
                     download
-                    className="bg-blue-500 text-white py-2 px-3 rounded m-2"
+                    className="bg-blue-500 text-lg font-bold text-white py-2 px-3 rounded m-2"
                   >
                     Download Low Quality
                   </a>
@@ -148,7 +140,7 @@ export function FacebookInput() {
       </p>
 
       {/* Button to navigate to YouTube video downloader */}
-      <span className="flex items-center justify-center text-white h-12 rounded-lg bg-red-600 w-3/4 text-center font-bold cursor-pointer">
+      <span className="flex mb-24 items-center justify-center text-white h-12 rounded-lg bg-red-600 w-2/4 text-center font-bold cursor-pointer">
         <Link href="/youtube">Download YouTube video</Link>
       </span>
     </div>

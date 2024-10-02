@@ -1,94 +1,4 @@
-// /* eslint-disable @typescript-eslint/no-explicit-any */
-// "use client";
 
-// import Link from "next/link";
-// import { PlaceholdersAndVanishInput } from "./ui/placeholders-and-vanish-input";
-// import { useDownloadYouTubeMutation } from "@/redux/api/downloadAPi";
-
-// export function YouTubeInput() {
-
-//   const placeholder2 = [
-//     "🔴 Paste Your YouTube video link"
-//   ];
-
-//   const handleChange = (e: any) => {
-//     console.log(e.target.value);
-//   };
-//   const onSubmit = (e: any) => {
-//     e.preventDefault();
-//     console.log("submitted", e);
-//   };
-
-
-//   const placeholder1 = ["🔵 Paste Your Facebook video link"];
-
-//   const [facebookUrl, setFacebookUrl] = useState(""); // State to hold the input value
-//   const [ytResponse, setYtResponse] = useState(); // State to hold the input value
-
-//   const [facebookLinks, setFacebookLinks] = useState<FacebookDownloadLinks | null>(null); // State to hold the URLs
-//   const [loading, setLoading] = useState(false); // State to handle loading status
-//   const [downloadYoutube] = useDownloadYouTubeMutation()
-
-//   // Handle input change
-//   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-//     setFacebookUrl(e.target.value); // Update state with input value
-//   };
-
-//   // Handle form submit
-//   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-//     e.preventDefault();
-
-//     // Check if the URL is valid before sending the request
-//     if (!facebookUrl) {
-//       console.error("No Facebook video URL provided");
-//       return;
-//     }
-
-//     // Prepare the payload
-//     const facebookData = { url: facebookUrl };
-//     const data = modifyPayload(downloadYoutube);
-
-//     console.log("Modified Payload:", data);
-
-
-//     setLoading(true); // Set loading to true when request starts
-
-//     try {
-//       // Send the request to download the Facebook video
-//       const res: any = await downloadFacebook(data).unwrap();
-
-
-//       // Set the response data
-//       setFbResponse(res.fbResponse);
-//       // setFacebookLinks(res.downloadUrl);
-//       console.log('client response', fbResponse)
-//       console.log('client response', fbResponse)
-//     } catch (err: any) {
-//       console.error("Error downloading Facebook video:", err.message);
-//     } finally {
-//       setLoading(false); // Set loading to false when request completes
-//     }
-//   };
-//   return (
-//     <div className=" flex flex-col gap-8 items-center px-4">
-
-//       <PlaceholdersAndVanishInput
-//         placeholders={placeholder2}
-//         onChange={handleChange}
-//         onSubmit={onSubmit}
-//       />
-//       <p className="max-w-4xl mt-12 mx-auto text-sm md:text-lg text-neutral-700 dark:text-neutral-400 text-center">
-//         Your one-stop solution for quick video downloads from Facebook, YouTube, and more. Save your favorite content in just a few clicks simple, fast, and hassle-free. Start downloading today, totally free.
-//       </p>
-
-//       <span className="flex items-center justify-center text-white h-12 rounded-lg bg-blue-600 w-3/4 text-center font-bold cursor-pointer">
-//         <Link href="/facebook">
-//           Download Facebook video
-//         </Link>
-//       </span>
-//     </div>
-//   );
-// }
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -97,6 +7,8 @@ import Link from 'next/link';
 import { PlaceholdersAndVanishInput } from './ui/placeholders-and-vanish-input';
 import { useDownloadYouTubeMutation } from '@/redux/api/downloadAPi';
 import { modifyPayload } from '@/utils/modifyPayload';
+import { YoutubeDownloadResponse } from '@/types';
+import Image from 'next/image';
 
 export function YouTubeInput() {
   // Placeholder for the input field
@@ -107,6 +19,7 @@ export function YouTubeInput() {
   // State to handle loading status
   const [loading, setLoading] = useState<boolean>(false);
   const [downloadYoutube] = useDownloadYouTubeMutation()
+  const [ytResponse, setYtResponse] = useState<YoutubeDownloadResponse | null>(null);
 
   // Handle input change for YouTube URL
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -129,6 +42,10 @@ export function YouTubeInput() {
       const res = await downloadYoutube(data).unwrap();
 
       console.log("YouTube response:", res);
+
+      if (res) {
+        setYtResponse(res)
+      }
       // Handle the API response here
 
     } catch (error) {
@@ -146,7 +63,6 @@ export function YouTubeInput() {
         onChange={handleChange}
         onSubmit={onSubmit}
       />
-
 
 
 
@@ -177,7 +93,33 @@ export function YouTubeInput() {
 
       ) : (
         <div>
-          hello
+          {
+            ytResponse ? (
+              <div className="flex flex-col justify-center items-center ">
+                <p className="w-96 text-lg font-bold  font-4 mb-4 mt-4 ">{ytResponse?.title}</p>
+                <Image
+                  src={ytResponse?.thumbnail || '/../assets/images/thumbnail-default.png'}
+                  height={200}
+                  width={350}
+                  alt="Video Thumbnail"
+                  className=""
+                />
+
+                {ytResponse?.formats.map((quality) => (
+                  <a
+                    key={quality.itag} // Add a unique key for each item in the list
+                    href={quality.url} // Use the URL from the quality object
+                    download
+                    className="bg-blue-500 text-lg font-bold text-white py-2 px-3 rounded m-2"
+                  >
+                    Download {quality.quality}
+                  </a>
+                ))}
+              </div>
+            ) : (
+              <p>No Url found</p>
+            )
+          }
         </div>
       )
       }
@@ -186,7 +128,7 @@ export function YouTubeInput() {
       </p>
 
       {/* Link to download Facebook video page */}
-      <span className="flex items-center justify-center text-white h-12 rounded-lg bg-blue-600 w-3/4 text-center font-bold cursor-pointer">
+      <span className="flex mb-24 items-center  justify-center text-white h-12 rounded-lg bg-blue-600 w-2/4 text-center font-bold cursor-pointer">
         <Link href="/facebook">
           Download Facebook video
         </Link>
